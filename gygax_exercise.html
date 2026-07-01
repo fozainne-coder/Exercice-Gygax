@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Exercice Gygax - Prénoms et stéréotypes</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
@@ -11,51 +11,119 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #f5f5f5;
       color: #333;
-      padding: 1.5rem;
+      padding: 1rem;
+      -webkit-user-select: none;
+      user-select: none;
     }
     .container { max-width: 900px; margin: 0 auto; }
-    .header { display: flex; gap: 12px; margin-bottom: 1.5rem; }
-    button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; }
+    .header { display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: 0.2s; }
+    button:active { transform: scale(0.98); }
     .btn-active { background: #3987e5; color: white; }
     .btn-inactive { background: white; border: 1px solid #ddd; color: #333; }
-    .section { display: none; background: white; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.5rem; }
+    .section { display: none; background: white; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1rem; }
     .section.active { display: block; }
     h3 { font-size: 16px; font-weight: 500; margin-bottom: 0.5rem; }
     .subtitle { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
-    .name-cloud { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; padding: 1rem; background: #fafafa; border-radius: 8px; border: 1px solid #e0e0e0; min-height: 200px; margin-bottom: 1.5rem; }
-    .name-badge { padding: 10px 12px; background: white; border: 2px solid #ddd; border-radius: 6px; cursor: grab; text-align: center; font-size: 13px; font-weight: 500; user-select: none; transition: 0.2s; }
+    .name-cloud { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+      gap: 8px; 
+      padding: 1rem; 
+      background: #fafafa; 
+      border-radius: 8px; 
+      border: 1px solid #e0e0e0; 
+      min-height: 200px; 
+      margin-bottom: 1.5rem;
+    }
+    .name-badge { 
+      padding: 10px 12px; 
+      background: white; 
+      border: 2px solid #ddd; 
+      border-radius: 6px; 
+      text-align: center; 
+      font-size: 13px; 
+      font-weight: 500; 
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      cursor: pointer;
+      transition: 0.2s;
+      touch-action: none;
+    }
     .name-badge.female { background: #e6f1fb; border-color: #3987e5; }
     .name-badge.male { background: #e1f5ee; border-color: #199e70; }
-    .name-badge:active { cursor: grabbing; opacity: 0.6; }
-    .couple-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
-    .couple-zone { border: 2px dashed #ddd; border-radius: 8px; padding: 12px; min-height: 60px; display: flex; gap: 8px; align-items: center; background: #fafafa; }
+    .name-badge.dragging { opacity: 0.5; }
+    .name-badge.selected { transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .couple-zones { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap: 12px; 
+      margin-bottom: 1.5rem;
+    }
+    .couple-zone { 
+      border: 2px dashed #ddd; 
+      border-radius: 8px; 
+      padding: 12px; 
+      min-height: 60px; 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      flex-wrap: wrap;
+      background: #fafafa; 
+      transition: 0.2s;
+      touch-action: none;
+    }
     .couple-zone.over { background: #e6f1fb; border-color: #3987e5; }
-    .couple-badge { padding: 8px 10px; background: white; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; font-weight: 500; }
-    .close-btn { background: none; border: none; color: #e74c3c; font-size: 16px; cursor: pointer; margin-left: auto; padding: 0; }
-    .controls { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+    .couple-badge { 
+      padding: 8px 10px; 
+      background: white; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      font-size: 12px; 
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .close-btn { 
+      background: none; 
+      border: none; 
+      color: #e74c3c; 
+      font-size: 16px; 
+      cursor: pointer; 
+      margin-left: auto; 
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .controls { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
     .message { margin-top: 12px; font-size: 13px; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
     .stat-card { background: #fafafa; border-radius: 8px; border: 1px solid #e0e0e0; padding: 1rem; }
     .stat-label { font-size: 12px; color: #666; margin-bottom: 0.5rem; }
     .stat-value { font-size: 24px; font-weight: 500; }
-    .chart-container { position: relative; height: 300px; margin-bottom: 1.5rem; }
+    .chart-container { position: relative; height: 300px; margin-bottom: 1.5rem; width: 100%; }
     .recent { max-height: 300px; overflow-y: auto; font-size: 12px; font-family: monospace; }
-    .recent-item { padding: 8px; border-bottom: 1px solid #e0e0e0; }
+    .recent-item { padding: 8px; border-bottom: 1px solid #e0e0e0; word-break: break-all; }
+    @media (max-width: 600px) {
+      .container { margin: 0 auto; }
+      .section { padding: 1rem; }
+      .couple-zones { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+      .name-cloud { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <button id="modeParticipant" class="btn-active">Participant</button>
-    <button id="modeProfessor" class="btn-inactive">Professor Dashboard</button>
+    <button id="modeProfessor" class="btn-inactive">Professor</button>
   </div>
 
   <!-- PARTICIPANT -->
   <div id="participantSection" class="section active">
     <h3>Prénoms et stéréotypes de genre</h3>
-    <p class="subtitle">Créez 10 couples en draggant deux prénoms dans les cases ci-dessous.</p>
+    <p class="subtitle">Créez 10 couples en sélectionnant deux prénoms successivement dans les cases.</p>
     
-    <label style="display: block; font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 500;">Nuage de prénoms</label>
+    <label style="display: block; font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 500;">Nuage de prénoms (tapez pour sélectionner)</label>
     <div id="nameCloud" class="name-cloud"></div>
 
     <label style="display: block; font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 500;">Créez 10 couples</label>
@@ -72,15 +140,15 @@
   <div id="professorSection" class="section">
     <div class="stats">
       <div class="stat-card">
-        <div class="stat-label">Réponses reçues</div>
+        <div class="stat-label">Réponses</div>
         <div class="stat-value" id="countResponses">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Masculin en 1er</div>
+        <div class="stat-label">Masculin 1er</div>
         <div class="stat-value" id="percentMale">0%</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Féminin en 1er</div>
+        <div class="stat-label">Féminin 1er</div>
         <div class="stat-value" id="percentFemale">0%</div>
       </div>
     </div>
@@ -93,7 +161,7 @@
     <h3>Dernières réponses</h3>
     <div id="recentCouples" class="recent"><p style="color: #999; margin: 0;">En attente...</p></div>
 
-    <button id="clearBtn" style="margin-top: 1.5rem; background: white; border: 1px solid #e74c3c; color: #e74c3c;">Réinitialiser les données</button>
+    <button id="clearBtn" style="margin-top: 1.5rem; background: white; border: 1px solid #e74c3c; color: #e74c3c;">Réinitialiser</button>
   </div>
 </div>
 
@@ -104,7 +172,8 @@ const allNames = [...femaleNames, ...maleNames];
 
 let allResponses = [];
 let currentCouples = {};
-let draggedName = null;
+let selectedName = null;
+let selectedElement = null;
 let chart = null;
 let lastStats = { total: 0, male: 0, female: 0 };
 
@@ -121,22 +190,19 @@ function initParticipant() {
   const shuffled = shuffle(allNames);
   const cloudDiv = document.getElementById('nameCloud');
   cloudDiv.innerHTML = '';
+  selectedName = null;
+  selectedElement = null;
   
   shuffled.forEach(name => {
     const badge = document.createElement('div');
-    badge.draggable = true;
     badge.textContent = name;
     badge.classList.add('name-badge');
     badge.classList.add(femaleNames.includes(name) ? 'female' : 'male');
+    badge.dataset.name = name;
     
-    badge.addEventListener('dragstart', (e) => {
-      draggedName = name;
-      badge.style.opacity = '0.5';
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    
-    badge.addEventListener('dragend', () => {
-      badge.style.opacity = '1';
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectName(name, badge);
     });
     
     cloudDiv.appendChild(badge);
@@ -150,32 +216,38 @@ function initParticipant() {
     const zone = document.createElement('div');
     zone.id = `couple-${i}`;
     zone.className = 'couple-zone';
-    zone.innerHTML = '<span style="color: #999; font-size: 12px;">Draggez 2 prénoms</span>';
+    zone.innerHTML = '<span style="color: #999; font-size: 12px; width: 100%;">Couple ' + (i+1) + '</span>';
+    zone.dataset.index = i;
     
-    zone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      zone.classList.add('over');
-    });
-    
-    zone.addEventListener('dragleave', () => {
-      zone.classList.remove('over');
-    });
-    
-    zone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      zone.classList.remove('over');
-      
-      if (draggedName) {
-        if (!currentCouples[i]) currentCouples[i] = [];
-        if (!currentCouples[i].includes(draggedName) && currentCouples[i].length < 2) {
-          currentCouples[i].push(draggedName);
-          updateCouple(i);
-        }
+    zone.addEventListener('click', () => {
+      if (selectedName) {
+        addNameToCouple(i);
       }
     });
     
     zonesDiv.appendChild(zone);
+  }
+}
+
+function selectName(name, element) {
+  if (selectedElement) {
+    selectedElement.classList.remove('selected');
+  }
+  selectedName = name;
+  selectedElement = element;
+  element.classList.add('selected');
+}
+
+function addNameToCouple(idx) {
+  if (!selectedName) return;
+  
+  if (!currentCouples[idx]) currentCouples[idx] = [];
+  if (!currentCouples[idx].includes(selectedName) && currentCouples[idx].length < 2) {
+    currentCouples[idx].push(selectedName);
+    updateCouple(idx);
+    selectedElement.classList.remove('selected');
+    selectedName = null;
+    selectedElement = null;
   }
 }
 
@@ -184,7 +256,7 @@ function updateCouple(idx) {
   zone.innerHTML = '';
   
   if (!currentCouples[idx] || currentCouples[idx].length === 0) {
-    zone.innerHTML = '<span style="color: #999; font-size: 12px;">Draggez 2 prénoms</span>';
+    zone.innerHTML = '<span style="color: #999; font-size: 12px; width: 100%;">Couple ' + (idx+1) + '</span>';
     return;
   }
   
@@ -199,7 +271,8 @@ function updateCouple(idx) {
     const xBtn = document.createElement('button');
     xBtn.className = 'close-btn';
     xBtn.textContent = '✕';
-    xBtn.onclick = () => {
+    xBtn.onclick = (e) => {
+      e.stopPropagation();
       currentCouples[idx] = [];
       updateCouple(idx);
     };
@@ -210,7 +283,7 @@ function updateCouple(idx) {
 function submitResponse() {
   const couples = Object.values(currentCouples).filter(c => c.length === 2);
   if (couples.length !== 10) {
-    showMessage('❌ Veuillez créer exactement 10 couples', '#e74c3c');
+    showMessage('❌ Créez exactement 10 couples', '#e74c3c');
     return;
   }
   
@@ -258,7 +331,6 @@ function updateDashboard() {
   document.getElementById('percentMale').textContent = totalCouples ? Math.round((maleFirst / totalCouples) * 100) + '%' : '0%';
   document.getElementById('percentFemale').textContent = totalCouples ? Math.round((femaleFirst / totalCouples) * 100) + '%' : '0%';
 
-  // Redessiner le graphique seulement si les données ont changé
   if (lastStats.total !== total || lastStats.male !== maleFirst || lastStats.female !== femaleFirst) {
     updateChart(maleFirst, femaleFirst);
     lastStats = { total, male: maleFirst, female: femaleFirst };
@@ -275,9 +347,9 @@ function updateChart(maleFirst, femaleFirst) {
   chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Masculin en 1er', 'Féminin en 1er'],
+      labels: ['Masculin 1er', 'Féminin 1er'],
       datasets: [{
-        label: 'Nombre de couples',
+        label: 'Couples',
         data: [maleFirst, femaleFirst],
         backgroundColor: ['#3987e5', '#199e70'],
         borderRadius: 4
